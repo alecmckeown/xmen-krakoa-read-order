@@ -1,20 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>X-men - Krakoa Era</title>
-    <link rel="icon" sizes="32x32" type="image/png" href="favicon.png">
-    <meta charset="UTF-8">
-</head>
-<body>
-    <header>
-        <p style="color: #8e8e8e;">Based on the work of <a href="https://www.reddit.com/r/xmen/comments/1945rl2/a_complete_singleissue_reading_order_for_the/" target="_blank">/u/DeltaTester and friends</a>.</p>
-        <br>
-        <p class="instructions"><img src="x_logo.png"> Click issues to mark as read</p> 
-        <p class="instructions"><img src="x_logo.png"> Click headers to collapse</p>
-        <p class="instructions"><img src="x_logo.png"> Long-click issues to open in Marvel Unlimited web (if available)</p>
-        <p class="instructions"><img src="x_logo.png"> Reading progress is automatically saved.</p>
+	<head>
+		<title>X-men - Krakoa Era</title>
+		<link rel="icon" sizes="32x32" type="image/png" href="favicon.png" />
+		<meta charset="UTF-8" />
+	</head>
+	<body>
+		<header>
+			<p style="color: #8e8e8e">
+				Based on the work of
+				<a
+					href="https://www.reddit.com/r/xmen/comments/1945rl2/a_complete_singleissue_reading_order_for_the/"
+					target="_blank"
+					>/u/DeltaTester and friends</a
+				>.
+                <div id="updated-date">(04/17/2024)</div>
+			</p>
+			<br />
+			<p class="instructions">
+				<img src="x_logo.png" /> Click issues to mark as read
+			</p>
+			<p class="instructions">
+				<img src="x_logo.png" /> Click headers to collapse
+			</p>
+			<p class="instructions">
+				<img src="x_logo.png" /> Long-click issues to open in Marvel Unlimited
+				web (if available)
+			</p>
+			<p class="instructions">
+				<img src="x_logo.png" /> Reading progress is automatically saved.
+			</p>
+		</header>
+	</body>
+</html>
 
-    </header>
 <div id="anchor"><div class="expanded"><b class="header">PART 1: HOUSE OF X/POWERS OF X</b>
 <p class="header-note">[Note: Marvel Unlimited also has a “Chronological Edition” of House/Powers, which rearranges the whole thing into chronological order. DO NOT READ THAT before you’ve read the original version.]</p><div class="series-anchor expanded first-series"><ul>
                                 <li class="issue" data-url="https://read.marvel.com/#/book/51975">
@@ -5276,101 +5295,114 @@ header p a:hover, header p a:focus {
     text-decoration: underline;
     color: #dd4b39;
 }
+
+#updated-date {
+    color: #8e8e8e;
+    font-size: 0.9em;
+}
 </style>
 
 <script>
-    const issues = document.getElementsByClassName('issue');
-    const seriesList = document.getElementsByClassName('series');
-    const headers = document.getElementsByClassName('header');
-    getStatus();
+const issues = document.getElementsByClassName('issue');
+const seriesList = document.getElementsByClassName('series');
+const headers = document.getElementsByClassName('header');
+getStatus();
 
-    document.addEventListener('contextmenu', e => {
-        if (e.target.tagName === 'IMG') {
+document.addEventListener('contextmenu', e => {
+    if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+    }
+}, false);
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const content = document.getElementById('anchor');
+    const longPressDuration = 750;
+    let longPressTimeout = null;
+    let longPressDetected = false; // Flag to denote a long press was detected
+
+    content.addEventListener('mousedown', startLongPress);
+    content.addEventListener('mouseup', stopLongPress);
+    content.addEventListener('mouseleave', stopLongPress);
+    content.addEventListener('touchstart', startLongPress);
+    content.addEventListener('touchend', stopLongPress);
+    content.addEventListener('click', handleClick, true); // Using capture phase for more control
+
+    function startLongPress(e) {
+
+        let issueElement = e.target.closest('.issue'); // Get the closest .issue parent
+        if (!issueElement) return;
+
+        longPressDetected = false; // Reset long press flag
+        longPressTimeout = setTimeout(() => {
+            longPressDetected = true; // Set flag if timeout completes
+            openIssue(issueElement.dataset.url); // Use the .issue data-url
+        }, longPressDuration);
+    }
+
+    function stopLongPress(e) {
+        clearTimeout(longPressTimeout);
+        longPressTimeout = null;
+    }
+
+    function handleClick(e) {
+        let issueElement = e.target.closest('.issue');
+        let seriesElement = e.target.closest('.series');
+        let headerElement = e.target.closest('.header');
+
+        if (longPressDetected) {
             e.preventDefault();
-        }
-    }, false);
-
-    document.addEventListener('DOMContentLoaded', (event) => {
-        const content = document.getElementById('anchor');
-        const longPressDuration = 750;
-        let longPressTimeout = null;
-        let longPressDetected = false; // Flag to denote a long press was detected
-
-        content.addEventListener('mousedown', startLongPress);
-        content.addEventListener('mouseup', stopLongPress);
-        content.addEventListener('mouseleave', stopLongPress);
-        content.addEventListener('touchstart', startLongPress);
-        content.addEventListener('touchend', stopLongPress);
-        content.addEventListener('click', handleClick, true); // Using capture phase for more control
-
-        function startLongPress(e) {
-
-            let issueElement = e.target.closest('.issue'); // Get the closest .issue parent
-            if (!issueElement) return;
-
-            longPressDetected = false; // Reset long press flag
-            longPressTimeout = setTimeout(() => {
-                longPressDetected = true; // Set flag if timeout completes
-                openIssue(issueElement.dataset.url); // Use the .issue data-url
-            }, longPressDuration);
+            e.stopPropagation();
+            longPressDetected = false;
+            return;
         }
 
-        function stopLongPress(e) {
-            clearTimeout(longPressTimeout);
-            longPressTimeout = null;
+        if (issueElement) {
+            e.stopPropagation();
+            toggleReadState(issueElement);
+        } else if (seriesElement) {
+            e.stopPropagation();
+            toggleCollapsed(seriesElement.parentElement);
+        } else if (headerElement) {
+            e.stopPropagation();
+            toggleCollapsed(headerElement.parentElement);
         }
+    }
 
-        function handleClick(e) {
-            let issueElement = e.target.closest('.issue');
-            let seriesElement = e.target.closest('.series');
-            let headerElement = e.target.closest('.header');
+    function openIssue(url) {
+        window.open(url, '_blank');
+    }
 
-            if (longPressDetected) {
-                e.preventDefault();
-                e.stopPropagation();
-                longPressDetected = false;
-                return;
-            }
-
-            if (issueElement) {
-                e.stopPropagation();
-                toggleReadState(issueElement);
-            } else if (seriesElement) {
-                e.stopPropagation();
-                toggleCollapsed(seriesElement.parentElement);
-            } else if (headerElement) {
-                e.stopPropagation();
-                toggleCollapsed(headerElement.parentElement);
-            }
+    function toggleReadState(issue) {
+        issue.classList.toggle('read');
+        let readCount = 0;
+        for (let child of issue.parentElement.children) {
+            if (child.classList.contains('read'))
+                readCount++;
         }
+        if (readCount == issue.parentElement.childElementCount)
+            toggleCollapsed(issue.parentElement.parentElement);
+        setRead();
+    }
 
-        function openIssue(url) {
-            window.open(url, '_blank');
-        }
+    function toggleCollapsed(element) {
+        element.classList.toggle('collapsed');
+        element.classList.toggle('expanded');
+        let children = element.querySelectorAll('*');
+        children.forEach(e => {
+            if (!e.classList.contains('header') && !e.classList.contains('series'))
+                e.classList.toggle('hidden');
+        });
+        setCollapsed();
+    }
+});
 
-        function toggleReadState(issue) {
-            issue.classList.toggle('read');
-            let readCount = 0;
-            for (let child of issue.parentElement.children) {
-                if (child.classList.contains('read'))
-                    readCount++;
-            }
-            if (readCount == issue.parentElement.childElementCount)
-                toggleCollapsed(issue.parentElement.parentElement);
-            setRead();
-        }
+//Issue read count easter egg
+document.querySelector('#updated-date').addEventListener('click', updateReadCounter);
 
-        function toggleCollapsed(element) {
-            element.classList.toggle('collapsed');
-            element.classList.toggle('expanded');
-            let children = element.querySelectorAll('*');
-            children.forEach(e => {
-                if (!e.classList.contains('header') && !e.classList.contains('series'))
-                    e.classList.toggle('hidden');
-            });
-            setCollapsed();
-        }
-    });
+function updateReadCounter () {
+    let readCount = document.querySelectorAll('.read').length;
+    document.querySelector('#updated-date').innerHTML = `(Read: ${readCount} / ${issues.length})`;
+}
 
 function setLocalStorage(key, value) {
     localStorage.setItem(key, value);
@@ -5381,6 +5413,7 @@ function getLocalStorage(key) {
 }
 
 function setRead() {
+    updateReadCounter();
     let readMap = [];
     for (let issue of issues) {
         readMap.unshift(issue.classList.contains('read') ? "1" : "0");
@@ -5444,6 +5477,6 @@ function getStatus() {
     setLocalStorage('read', '');
     setLocalStorage('tcollapsed', '');
     setLocalStorage('hcollapsed', '');
-  }
+}
 </script>
 </body>
